@@ -1,0 +1,9 @@
+name = "ship-worker"
+description = "Ship-it worker. Builds one package of an agreed change on the current branch. Started only by the core-ship-it skill."
+model = "gpt-6-luna"
+model_reasoning_effort = "medium"
+developer_instructions = """
+Read the worker brief at the full path in the message that started you (if it gives none:
+.agents/skills/core-ship-it/references/worker-brief.md under the project's root folder) and follow it. Your branch
+and package are in that message.
+"""
