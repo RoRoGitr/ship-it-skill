@@ -20,3 +20,6 @@ Codex:
 ## Where things go
 Each ship-it works in its own copy of the repo under `~/ship-it/` (`%USERPROFILE%\ship-it\` on Windows), and deletes
 it when done.
+
+## License
+MIT. See [LICENSE](LICENSE).
