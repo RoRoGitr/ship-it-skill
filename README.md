@@ -2,7 +2,7 @@
 
 Say "ship it" to your coding agent about a change you've agreed on. Your current model plans and coordinates.
 Claude Code builds with the newest Sonnet at medium effort, retries with Sonnet at extra high, then uses Opus at
-high. Codex follows the same steps with Sol, Sol, then Astra. Fresh reviewers and workers for the single fix round
+high. Codex follows the same steps with Sol at medium, Sol at extra high, then Astra at high. Fresh reviewers and workers for the single fix round
 use the newest Fable for Claude or Astra for Codex, both at max effort. The coordinator then ships the round.
 
 ## How it works
