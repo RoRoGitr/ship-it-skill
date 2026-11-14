@@ -1,0 +1,3 @@
+# Preserve the source skill and agent files byte-for-byte, including line endings.
+skills/** -text
+agents/** -text

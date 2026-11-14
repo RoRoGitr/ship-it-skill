@@ -5,24 +5,20 @@ description: The user says "ship it" (or "ship this") about an agreed change or 
 
 # Ship it
 
-Two roles. The thread the user said "ship it" in writes the plan and starts a fresh coordinator (Part A). The
-coordinator runs the plan (Part B): it thinks, splits, checks and decides; workers and the reviewer are separate
-agents, and they type. Nobody asks the user what can run in parallel, which model to use, or whether to start the next
-round.
+Two roles. The thread the user said "ship it" in writes the plan and starts a fresh coordinator (Part A). The coordinator
+runs the plan (Part B): it thinks, splits, checks and decides; workers and the reviewer are separate agents, and they
+type. Nobody asks the user what can run in parallel, which model to use, or whether to start the next round.
 
 ## Where a ship-it lives
-Every ship-it gets its own copy of the repo (a git worktree), `<home>\ship-it\<project>-<short-name>` (the copy), where
-`<home>` is the user's home folder (`%USERPROFILE%` on Windows, `~` elsewhere). Its plan and brief files go in the
-copy's `.ship-it\` folder. Nothing goes in the project's own folder, so two ship-its in one repo never touch each
-other's files or branches. Everyone in a ship-it works only in its copy: `cd` there first, and name files by full path.
-The copy is deleted when it's done.
+Every ship-it gets its own copy of the repo (a git worktree), `<home>\ship-it\<project>-<short-name>`
+(the copy), where `<home>` is the user's home folder (`%USERPROFILE%` on Windows, `~` elsewhere). Its plan and brief files go in the copy's `.ship-it\` folder (add `.ship-it/` to the local exclude file from `git rev-parse --git-path info/exclude` to keep it out of git). Nothing
+goes in the project's own folder, so two ship-its in one repo never touch each other's files or branches. Everyone in
+a ship-it works only in its copy: `cd` there first, and name files by full path. The copy is deleted when it's done.
 
 ## Part A: the thread the user said "ship it" in
 1. Make the copy, from the project's folder: `git fetch origin main`, then
    `git worktree add -b ship/<short-name>-r1 <home>\ship-it\<project>-<short-name> origin/main`.
    If that folder already exists, another ship-it has the name: pick another.
-   Keep `.ship-it/` out of git: if the project's `.git\info\exclude` doesn't list `.ship-it/`, add that line (this
-   file is local and never committed).
 2. Write the plan to `<copy>\.ship-it\plan.md`. It is all the coordinator will know, so put in: the goal; what was
    decided and why; what is out of scope; and the rounds. A round is a piece that works and can merge on its own, at
    most 6 worker jobs; later rounds build on earlier ones. A small change is one round. Also:
@@ -35,13 +31,13 @@ The copy is deleted when it's done.
    and `--reasoning-level`: a child with none of them inherits yours, and coordinating is thinking work. Write
    `<copy>\.ship-it\coordinator.md`:
    `Read <full path of this SKILL.md> and follow Part B as the coordinator. Your copy: <copy path>. The plan:
-   <copy>\.ship-it\plan.md. If the plan leaves something unclear, read @thread:<your BB_THREAD_ID>; ask the user only
-   if that doesn't settle it.`
+   <copy>\.ship-it\plan.md. If the plan leaves something unclear, read @thread:<your BB_THREAD_ID>; ask the user only if
+   that doesn't settle it.`
    Then: `bb thread spawn --parent-self --project $BB_PROJECT_ID --environment $BB_ENVIRONMENT_ID --title "ship-it coordinator: <goal>" --prompt-file <copy>\.ship-it\coordinator.md --json`
    (PowerShell spells the variables `$env:BB_PROJECT_ID`.)
-4. Tell the user in one line that the coordinator is running, then end your turn. BB wakes you when it finishes, fails
-   or gets stuck. Then: relay its report in 3 lines; if it asks for a fresh coordinator, start one the same way with
-   the same coordinator.md; if it failed, say what is blocking.
+4. Tell the user in one line that the coordinator is running, then end your turn. BB wakes you when it finishes, fails or
+   gets stuck. Then: relay its report in 3 lines; if it asks for a fresh coordinator, start one the same way with the
+   same coordinator.md; if it failed, say what is blocking.
 5. Outside BB you are the coordinator: do Part B yourself.
 
 ## Part B: the coordinator
@@ -66,9 +62,9 @@ Don't write the code yourself. `cd` to the copy. Do the plan's rounds in order, 
    copy's path, the branch name and its package.
 2. Wait for all of them, then read each report and run each package's check yourself, once.
 3. A worker that failed or drifted off its package: start a FRESH worker one try further down the table, with a
-   tighter package and the first one's handoff note. Move down on your own; never ask the user. A worker that only
-   handed off because its thread got long hasn't failed: its replacement stays on the same try. Don't nudge a running
-   worker along, and don't fix its work yourself.
+   tighter package and the first one's handoff note. Move down on your own; never ask the user. A worker that only handed
+   off because its thread got long hasn't failed: its replacement stays on the same try. Don't nudge a running worker
+   along, and don't fix its work yourself.
 4. A question package starts on try 3. Its job: try at least two designs, run each, and report which works, with what
    the runs printed. Packages that don't need its answer build alongside it; the ones that do wait for it.
 5. A package is stuck when its try-3 worker fails, or a question finds no design that works. It holds back only the
@@ -83,12 +79,10 @@ Don't write the code yourself. `cd` to the copy. Do the plan's rounds in order, 
 3. A finding you disagree with: leave it, and say so in your report.
 
 ### 4. Ship the round
-In the copy: `git push -u origin <branch>`, open a pull request (`gh pr create --fill`), and merge it once it is
-mergeable with no failing checks (`gh pr merge --squash --delete-branch`, or the merge style the project uses). Never
-push straight to main and never force-push. Then update main in the project's own folder: if it has main checked out
-and no uncommitted changes, `git pull --ff-only`; otherwise leave it and say so in your report. Add a line under
-`## Progress` in the plan: the round, its PR link, anything skipped or stuck. Then start the next round without asking
-anyone.
+Push the branch, open the pull request, merge when it is mergeable with no failing checks, then update local main in
+the project's own folder: commit on a branch, open a pull request, merge it, and update the local copy. Never push straight to main or force-push. Add a line under `## Progress` in the plan: the round,
+its PR link, anything skipped or stuck. Then check your context (Long threads, below); under 40%, start the next
+round without asking anyone.
 
 Stop and report instead of starting the next round only when: a round can't merge (its checks still fail after the fix
 round), the reviewer found something Critical you couldn't fix, a stuck package that every remaining round needs, or
@@ -129,19 +123,21 @@ a try you can't start counts as failed.
 | Worker, try 3 (and questions) | `opus` | newest Sol | `xhigh` |
 | Reviewer | `opus` | newest Sol | `high` |
 
-Always use the newest Luna and Sol, the way `sonnet` and `opus` always mean the newest Sonnet and Opus (Claude Code
-moves those names itself). Codex has no such names, so you pick: once per ship-it, run
+The user always wants the newest Luna and Sol, the way `sonnet` and `opus` always mean the newest Sonnet and Opus (Claude
+Code moves those names itself). Codex has no such names, so you pick: once per ship-it, run
 `bb provider models codex --json` and take the `gpt-<version>-luna` and `gpt-<version>-sol` with the highest version
 (plain names only: skip any with more after `luna`/`sol`, such as `-pro`). On 2026-11-06 that was `gpt-6-luna` and
 `gpt-6.1-sol`; if yours is newer, say so in your report.
 
-The subagent route (`agents/`, outside BB) has fixed model names in its files; update them when a newer model ships.
-If bb refuses a model name or effort, run `bb provider models <provider>` once, use the matching tier (for `xhigh`,
-the level just above `high`), and tell the user.
+The subagent route (`agents/`, outside BB) has fixed names; update them when a newer one ships. If
+bb refuses a model name or effort, run `bb provider models <provider>` once, use the matching tier (for `xhigh`, the
+level just above `high`), and tell the user.
 
 ## Long threads
 - Nobody compacts: it loses the plan.
-- Coordinator: after a round, if your thread is getting long (`bb thread context --self`), check that `## Progress` is
-  up to date and end your turn with "Fresh coordinator needed after round <N>." Your parent starts one from the same
-  coordinator.md. Outside BB, tell the user to start a new thread and point it at this skill, the copy and the plan.
-- Workers stop and hand off too (their brief says how); you start a fresh one.
+- The limit is 40% of the context window. `bb thread context --self` prints the tokens used out of the window, for
+  example `400,000 / 1,000,000` is 40%. Outside BB nothing prints it, so judge for yourself.
+- Coordinator: after each round, look. Over 40%: make sure `## Progress` is up to date, then end your turn with
+  "Fresh coordinator needed after round <N>." Your parent starts one from the same coordinator.md. Outside BB, tell
+  the user to hand off to a new thread.
+- Workers stop at 40% and hand off too (their brief says how); you start a fresh one.

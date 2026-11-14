@@ -23,3 +23,9 @@ it when done.
 
 ## License
 MIT. See [LICENSE](LICENSE).
+
+## Source fidelity
+The skill, briefs, review skill, and agent definitions preserve the original files, including line endings,
+except for personal details and machine-specific references. Names and personal paths use generic equivalents;
+local sync, global Git rules, and harness maintenance references have their necessary instructions included here.
+The coordinator and workers retain the original 40% context handoff rule, model choices, and workflow.
