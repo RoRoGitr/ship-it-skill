@@ -20,6 +20,7 @@ the copy right now.
 - Don't install tools or change settings, rules, skills or hooks.
 
 ## Running long
-If you are still not done after a long run, or your context is getting crowded: stop. Write a handoff note as your
-report: done so far, left to do, files touched, the one thing that blocked you. A fresh worker continues from it.
-Never compact.
+Each time you run the package's check, also run `bb thread context --self`: it prints the tokens used out of your
+context window, for example `400,000 / 1,000,000` is 40%. Over 40%, or still not done after a long run: stop. Write a
+handoff note as your report: done so far, left to do, files touched, the one thing that blocked you. A fresh worker
+continues from it. Never compact. Outside BB nothing prints your context, so judge for yourself.
