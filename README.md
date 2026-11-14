@@ -1,11 +1,13 @@
 # Ship it
 
-Say "ship it" to your coding agent about a change you've agreed on. It writes a plan, then a coordinator builds it in
-rounds: cheaper-model workers in parallel, one fresh reviewer per round, then a pull request and merge.
+Say "ship it" to your coding agent about a change you've agreed on. Your current model plans and coordinates.
+Claude Code builds with the newest Sonnet at medium effort, retries with Sonnet at extra high, then uses Opus at
+high. Codex follows the same steps with Sol, Sol, then Astra. Fresh reviewers and workers for the single fix round
+use the newest Fable for Claude or Astra for Codex, both at max effort. The coordinator then ships the round.
 
 ## How it works
 
-![Ship It workflow: workers start on Sonnet or Sol at medium effort, retry at extra high, then use Opus or Astra at high. Fable or Astra review and fix findings at max effort.](docs/ship-it-workflow.svg)
+![Each Ship It step: plan and coordinate on your current model; build with Sonnet/Sol at medium, Sonnet/Sol at extra high, then Opus/Astra at high; review with Fable/Astra at max; one fix round with Fable/Astra at max; ship with the coordinator. Model pairs are Claude/Codex.](docs/ship-it-model-steps.svg)
 
 The current conversation writes the plan. In BB, a fresh coordinator inherits that conversation's model and reasoning
 effort, divides each round into up to six packages, and delegates implementation. Independent packages run in parallel;
@@ -33,7 +35,8 @@ two designs.
 Critical or Important findings go to fresh fix workers at `max` effort for one fix round, without the build's retry
 ladder. A context handoff keeps the same fix-worker model and effort. A second review runs only if the user asks.
 The coordinator runs the checks and then opens and merges the pull request when it is mergeable with no failing
-checks; unresolved Critical issues block shipping.
+checks; unresolved Critical issues block shipping. Review and fixing are separate steps in the diagram, even though
+they use the same model families and max effort.
 
 **The model names depend on the environment.** In BB, the skill reads `bb provider models <provider> --json` once per
 run and selects the newest model within each requested family, with the exact effort for its role. For Codex it uses

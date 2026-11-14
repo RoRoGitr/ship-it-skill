@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1630" viewBox="0 0 1200 1630" role="img" aria-labelledby="title desc">
+  <title id="title">Ship It: model choices at every step</title>
+  <desc id="desc">Plan, coordinate and ship with your current model and effort. Build attempt 1 uses the newest Claude Sonnet or Codex Sol at medium effort. Attempt 2 uses Sonnet or Sol at extra high effort. Attempt 3, also used for design questions, uses Opus or Astra at high effort. A fresh reviewer uses Fable or Astra at max effort. If it finds Critical or Important issues, fresh fix workers use Fable or Astra at max for one fix round without the build retry ladder. A second review runs only if requested. The coordinator ships the round and continues to the next one. Coordinators and workers hand off when over 40 percent context.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b1225"/><stop offset="1" stop-color="#15233b"/></linearGradient>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#849ab7"/></marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #eef4ff; }
+      .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 2px; fill: #8fd9ce; }
+      .heading { font-size: 25px; font-weight: 700; }
+      .body { font-size: 20px; fill: #d1dced; }
+      .small { font-size: 17px; fill: #b2c2d9; }
+      .model { font-size: 21px; font-weight: 700; }
+      .effort { font-size: 17px; font-weight: 700; fill: #d5fff2; }
+      .box { fill: #1b2c46; stroke: #3a506f; stroke-width: 1.5; }
+      .line { fill: none; stroke: #849ab7; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1200" height="1630" rx="24" fill="url(#bg)"/>
+  <text x="60" y="55" class="eyebrow">CORE SHIP IT · CLAUDE CODE + CODEX</text>
+  <text x="60" y="108" font-size="42" font-weight="700">The model and effort at every step</text>
+  <text x="60" y="146" class="body">Always the newest model in each named family. Fresh agents for each attempt.</text>
+
+  <g id="plan">
+    <rect x="60" y="184" width="1080" height="116" rx="16" class="box"/>
+    <text x="88" y="224" class="heading">1  Plan the agreed change</text>
+    <text x="88" y="266" class="body">Claude + Codex: your current model and effort</text>
+    <text x="1108" y="224" text-anchor="end" class="small">Your current conversation</text>
+  </g>
+  <path d="M600 300V329" class="line"/>
+
+  <g id="coordinate">
+    <rect x="60" y="340" width="1080" height="124" rx="16" class="box"/>
+    <text x="88" y="380" class="heading">2  Coordinate the round</text>
+    <text x="88" y="418" class="body">Claude + Codex: inherit the planning model and effort</text>
+    <text x="88" y="446" class="small">Split up to 6 packages; check the results and commit the work.</text>
+    <rect x="878" y="358" width="230" height="38" rx="19" fill="#26473f"/>
+    <text x="993" y="383" text-anchor="middle" class="effort">Inherited model + effort</text>
+  </g>
+  <path d="M600 464V493" class="line"/>
+
+  <text x="60" y="516" class="eyebrow">3  BUILD · INDEPENDENT PACKAGES RUN IN PARALLEL</text>
+  <text x="60" y="545" class="small">Each package starts at attempt 1. A failed attempt gets a fresh worker.</text>
+
+  <g id="attempt-1" data-source-role="Worker, try 1">
+    <rect x="60" y="570" width="320" height="212" rx="16" fill="#163d3d" stroke="#3b8279"/>
+    <text x="84" y="606" class="eyebrow">ATTEMPT 1</text>
+    <text x="84" y="650" class="model">Claude: newest Sonnet</text>
+    <text x="84" y="685" class="model">Codex: newest Sol</text>
+    <rect x="84" y="710" width="272" height="38" rx="10" fill="#245149"/>
+    <text x="220" y="736" text-anchor="middle" class="effort">Effort: medium</text>
+  </g>
+  <path d="M386 674H431" class="line"/>
+  <text x="409" y="653" text-anchor="middle" font-size="13" fill="#b2c2d9">fails</text>
+
+  <g id="attempt-2" data-source-role="Worker, try 2">
+    <rect x="440" y="570" width="320" height="212" rx="16" class="box"/>
+    <text x="464" y="606" class="eyebrow">ATTEMPT 2</text>
+    <text x="464" y="650" class="model">Claude: newest Sonnet</text>
+    <text x="464" y="685" class="model">Codex: newest Sol</text>
+    <rect x="464" y="710" width="272" height="38" rx="10" fill="#304362"/>
+    <text x="600" y="736" text-anchor="middle" class="effort">Effort: extra high (xhigh)</text>
+  </g>
+  <path d="M766 674H811" class="line"/>
+  <text x="789" y="653" text-anchor="middle" font-size="13" fill="#b2c2d9">fails</text>
+
+  <g id="attempt-3" data-source-role="Worker, try 3 (and questions)">
+    <rect x="820" y="570" width="320" height="212" rx="16" fill="#382f49" stroke="#79618f"/>
+    <text x="844" y="606" class="eyebrow">ATTEMPT 3 / QUESTIONS</text>
+    <text x="844" y="650" class="model">Claude: newest Opus</text>
+    <text x="844" y="685" class="model">Codex: newest Astra</text>
+    <rect x="844" y="710" width="272" height="38" rx="10" fill="#51405e"/>
+    <text x="980" y="736" text-anchor="middle" class="effort">Effort: high</text>
+    <text x="980" y="768" text-anchor="middle" font-size="14" fill="#c7b9d8">Design questions start here</text>
+  </g>
+  <path d="M220 782V809H980V782M600 782V839" fill="none" stroke="#849ab7" stroke-width="2"/>
+  <path d="M600 809V839" class="line"/>
+
+  <g id="review" data-source-role="Reviewer">
+    <rect x="60" y="850" width="1080" height="145" rx="16" class="box"/>
+    <text x="88" y="892" class="heading">4  Review the whole round</text>
+    <text x="88" y="936" class="model">Claude: newest Fable</text>
+    <text x="650" y="936" class="model">Codex: newest Astra</text>
+    <text x="88" y="970" class="small">One fresh reviewer, independent of the build workers.</text>
+    <rect x="922" y="870" width="186" height="38" rx="19" fill="#51405e"/>
+    <text x="1015" y="895" text-anchor="middle" class="effort">Effort: max</text>
+  </g>
+  <path d="M600 995V1029" class="line"/>
+  <text x="618" y="1020" font-size="14" fill="#b2c2d9">Critical / Important findings</text>
+  <path d="M1140 922H1170V1302H1142" class="line"/>
+  <text transform="translate(1190 1112) rotate(-90)" text-anchor="middle" font-size="14" fill="#b2c2d9">No findings: skip the fix round</text>
+
+  <g id="fix" data-source-role="Review-fix worker">
+    <rect x="60" y="1040" width="1080" height="160" rx="16" fill="#382f49" stroke="#79618f"/>
+    <text x="88" y="1082" class="heading">5  Fix review findings · one round</text>
+    <text x="88" y="1126" class="model">Claude: newest Fable</text>
+    <text x="650" y="1126" class="model">Codex: newest Astra</text>
+    <text x="88" y="1165" class="small">Fresh fix workers. No build-attempt escalation. Run checks and commit the fixes.</text>
+    <rect x="922" y="1060" width="186" height="38" rx="19" fill="#51405e"/>
+    <text x="1015" y="1085" text-anchor="middle" class="effort">Effort: max</text>
+  </g>
+  <path d="M600 1200V1229" class="line"/>
+
+  <g id="ship">
+    <rect x="60" y="1240" width="1080" height="124" rx="16" fill="#163d3d" stroke="#3b8279"/>
+    <text x="88" y="1280" class="heading">6  Ship the round</text>
+    <text x="88" y="1318" class="body">Coordinator: inherited model and effort</text>
+    <text x="88" y="1347" class="small">Open the PR → merge when checks pass → record progress → next round.</text>
+  </g>
+
+  <rect x="60" y="1400" width="1080" height="124" rx="16" fill="#292f44" stroke="#586583"/>
+  <text x="88" y="1440" font-size="23" font-weight="700">40% context handoff</text>
+  <text x="88" y="1476" class="small">Coordinator: check after each round. Workers: check with validation.</text>
+  <text x="88" y="1505" class="small">Over 40%: save progress and hand off; the replacement keeps the same role, model and effort.</text>
+  <text x="60" y="1570" class="body">A second review runs only when the user asks.</text>
+  <text x="60" y="1603" class="small">BB discovers current model IDs. Standalone presets pin each role's model and effort; see the README.</text>
+</svg>
