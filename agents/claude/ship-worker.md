@@ -1,7 +1,7 @@
 ---
 name: ship-worker
-description: Ship-it worker. Builds one package of an agreed change on the current branch. Started only by the core-ship-it skill.
-model: sonnet
+description: Ship-it worker, try 1. Builds one package of an agreed change on the current branch. Started only by the core-ship-it skill.
+model: claude-sonnet-5-5
 effort: medium
 maxTurns: 80
 disallowedTools: Agent

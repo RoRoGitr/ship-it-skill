@@ -5,7 +5,7 @@ rounds: cheaper-model workers in parallel, one fresh reviewer per round, then a 
 
 ## How it works
 
-![Ship It workflow: your current model plans and coordinates; workers start on Sonnet or Luna, retry on Opus or Sol, and a fresh Opus or Sol reviewer checks the round before shipping.](docs/ship-it-workflow.svg)
+![Ship It workflow: workers start on Sonnet or Sol at medium effort, retry at extra high, then use Opus or Astra at high. Fable or Astra review and fix findings at max effort.](docs/ship-it-workflow.svg)
 
 The current conversation writes the plan. In BB, a fresh coordinator inherits that conversation's model and reasoning
 effort, divides each round into up to six packages, and delegates implementation. Independent packages run in parallel;
@@ -17,26 +17,33 @@ packages that need the same files run sequentially. The coordinator checks the w
 |---|---|---|---|
 | Planning conversation | Your current model | Your current model | Your current setting |
 | Coordinator | Inherits your model | Inherits your model | Inherits your setting |
-| Worker: attempt 1 | Sonnet (`sonnet`) | Newest available Luna | `medium` |
-| Fresh worker: attempt 2 | Opus (`opus`) | Newest available Sol | `medium` |
-| Fresh worker: attempt 3 | Opus (`opus`) | Newest available Sol | `xhigh` |
-| Design-question worker | Opus (`opus`) | Newest available Sol | `xhigh`; starts at attempt 3 |
-| Fresh reviewer | Opus (`opus`) | Newest available Sol | `high` |
+| Worker: attempt 1 | Newest Sonnet | Newest Sol | `medium` |
+| Fresh worker: attempt 2 | Newest Sonnet | Newest Sol | `xhigh` |
+| Fresh worker: attempt 3 | Newest Opus | Newest Astra | `high` |
+| Design-question worker | Newest Opus | Newest Astra | `high`; starts at attempt 3 |
+| Fresh reviewer | Newest Fable | Newest Astra | `max` |
+| Review-fix worker | Newest Fable | Newest Astra | `max`; one fix round |
 
-**Retries are per package.** A failed or off-scope attempt goes to a fresh worker with the previous handoff and a tighter
-brief. A context-only handoff keeps the same attempt level. A package that fails its third attempt is marked blocked;
-independent packages can still proceed. Design questions start at the strongest tier and compare at least two designs.
+**Build retries are per package.** A failed or off-scope attempt goes to a fresh worker with the previous handoff and a
+tighter brief. A context-only handoff keeps the same attempt level. A package that fails its third attempt is marked
+blocked; independent packages can still proceed. Design questions start at the third build tier and compare at least
+two designs.
 
 **Review is independent.** One fresh reviewer checks the whole round using the included `core-code-review` skill.
-Critical or Important findings go to fresh workers for one fix round. The coordinator runs the checks and then opens
-and merges the pull request when it is mergeable with no failing checks; unresolved Critical issues block shipping.
+Critical or Important findings go to fresh fix workers at `max` effort for one fix round, without the build's retry
+ladder. A context handoff keeps the same fix-worker model and effort. A second review runs only if the user asks.
+The coordinator runs the checks and then opens and merges the pull request when it is mergeable with no failing
+checks; unresolved Critical issues block shipping.
 
-**The model names depend on the environment.** In BB, the skill discovers the highest-version plain Luna and Sol IDs
-from `bb provider models codex --json`; it does not pin BB workers to one version. The standalone Codex agent files
-currently specify `gpt-6-luna` for workers and `gpt-6.1-sol` for reviewers. Keep those files updated as models change.
-Claude Code uses the `sonnet` and `opus` aliases. Outside BB, Claude Code's Agent tool cannot set effort for retries;
-the skill passes `opus` for attempts 2 and 3. The table describes the skill's intended routing, subject to the host's
-available models and controls. Outside BB, the initiating conversation acts as coordinator.
+**The model names depend on the environment.** In BB, the skill reads `bb provider models <provider> --json` once per
+run and selects the newest model within each requested family, with the exact effort for its role. For Codex it uses
+plain Sol and Astra IDs, excluding suffix variants such as `-pro`. An unavailable build-worker attempt counts as
+failed; an unavailable reviewer or fix worker blocks shipping.
+
+Outside BB, the initiating conversation coordinates. Native presets set both model and effort: `ship-worker`,
+`ship-worker-try-2`, `ship-worker-try-3`, `ship-reviewer`, and `ship-fix-worker`. They currently pin Sonnet 5.5, Opus 5.5,
+Fable 5.2, GPT-6.1-Sol and GPT-6-Astra for the roles above. Keep those files updated when newer versions in the same
+families become available. Select the matching preset for each attempt or role.
 
 **40% context handoffs.** The coordinator checks context after each round; workers check it when running their package's
 validation. At the skill's 40% threshold, they write progress or a handoff for a fresh agent, keeping the work resumable.
@@ -65,7 +72,12 @@ it when done.
 MIT. See [LICENSE](LICENSE).
 
 ## Source fidelity
-The skill, briefs, review skill, and agent definitions preserve the original files, including line endings,
-except for personal details and machine-specific references. Names and personal paths use generic equivalents;
-local sync, global Git rules, and harness maintenance references have their necessary instructions included here.
-The coordinator and workers retain the original 40% context handoff rule, model choices, and workflow.
+The files under `skills/` and `agents/` match the current Harness source byte for byte, including line endings, except
+for explicit privacy substitutions: personal names, personal workspace paths, a private project example, and a
+personal capability statement. Model choices, effort levels, workflow instructions and the 40% handoff rule are
+preserved. The README, workflow diagram, license and Git attributes are public-package files.
+
+`<home>` means your home folder. The source skill assumes that `.ship-it/` is excluded from Git and that the project
+has global Git publishing rules. Before using this standalone package, add `.ship-it/` to the exclude file returned
+by `git rev-parse --git-path info/exclude`, and provide your project's rules for pushing branches, opening and merging
+pull requests, and updating local main. Those setup notes stay here so the copied skill remains unchanged.

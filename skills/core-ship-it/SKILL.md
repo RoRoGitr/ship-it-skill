@@ -11,7 +11,7 @@ type. Nobody asks the user what can run in parallel, which model to use, or whet
 
 ## Where a ship-it lives
 Every ship-it gets its own copy of the repo (a git worktree), `<home>\ship-it\<project>-<short-name>`
-(the copy), where `<home>` is the user's home folder (`%USERPROFILE%` on Windows, `~` elsewhere). Its plan and brief files go in the copy's `.ship-it\` folder (add `.ship-it/` to the local exclude file from `git rev-parse --git-path info/exclude` to keep it out of git). Nothing
+(the copy). Its plan and brief files go in the copy's `.ship-it\` folder (sync keeps `.ship-it/` out of git). Nothing
 goes in the project's own folder, so two ship-its in one repo never touch each other's files or branches. Everyone in
 a ship-it works only in its copy: `cd` there first, and name files by full path. The copy is deleted when it's done.
 
@@ -74,13 +74,15 @@ Don't write the code yourself. `cd` to the copy. Do the plan's rounds in order, 
 ### 3. Review
 1. Start ONE reviewer for the whole branch (Delegation). It has seen none of the above; don't tell it what you expect.
    Its message gives the copy's path and the full path of `core-code-review`'s SKILL.md in the project's folder.
-2. Findings marked Critical or Important: a fresh worker per finding (one for all of them if they're small), given the
-   finding and the reviewer's fix line. Run the checks once, commit. One round. A second review only if the user asks.
+2. Findings marked Critical or Important: a fresh fix worker per finding (one for all of them if they're small). Use
+   the Review-fix worker row in the table (Delegation) for every fix worker. Give it the finding and the reviewer's
+   fix line. Run the checks once, commit. One fix round, without the build's three-try escalation. A second review
+   only if the user asks. A context handoff keeps the same fix-worker model and effort.
 3. A finding you disagree with: leave it, and say so in your report.
 
 ### 4. Ship the round
 Push the branch, open the pull request, merge when it is mergeable with no failing checks, then update local main in
-the project's own folder: commit on a branch, open a pull request, merge it, and update the local copy. Never push straight to main or force-push. Add a line under `## Progress` in the plan: the round,
+the project's own folder: the git steps of the global rules. Add a line under `## Progress` in the plan: the round,
 its PR link, anything skipped or stuck. Then check your context (Long threads, below); under 40%, start the next
 round without asking anyone.
 
@@ -96,13 +98,13 @@ the PR links, anything stuck, left or skipped.
 ## Delegation
 
 **Inside BB** (`BB_THREAD_ID` is set): workers and the reviewer are child threads of your thread, nested under it in
-the user's sidebar, so they can watch and stop any of them.
+the user's sidebar, so he can watch and stop any of them.
 1. Write the brief to a file, `<copy>\.ship-it\worker-1.md`. Line 1: `Read <full path> and follow it.` where the full
    path is this skill's folder (in the project's folder) + `references\worker-brief.md`, for example
    `C:\...\my-app\.agents\skills\core-ship-it\references\worker-brief.md`. Always full paths: a child thread may
    start anywhere in the project. Then the copy's path, the branch name and the package.
-2. Start it, with your own provider (`claude-code` or `codex`) and the model and effort for its try from the table
-   (always pass both: a child left to default inherits YOUR model and effort):
+2. Start it with your own provider (`claude-code` or `codex`). Use the table's model and effort for its role or build
+   try (always pass both: a child left to default inherits YOUR model and effort):
    `bb thread spawn --parent-self --project $BB_PROJECT_ID --environment $BB_ENVIRONMENT_ID --provider <yours> --model <model> --reasoning-level <effort> --title "ship-it worker 1: <goal>" --prompt-file <copy>\.ship-it\worker-1.md --json`
    Note the `id` it prints. Start all workers before waiting.
 3. `bb thread wait <id> --timeout 2h`, then `bb thread output <id>` is the report. A worker still running after that:
@@ -110,28 +112,36 @@ the user's sidebar, so they can watch and stop any of them.
 4. The reviewer the same way, from `<copy>\.ship-it\reviewer.md` with line 1 pointing at `reviewer-brief.md`, title
    "ship-it reviewer".
 
-**Outside BB**: the tool's own subagents, `ship-worker` and `ship-reviewer` (Claude Code: the Agent tool, in
-parallel; Codex: spawn agents of those types). Same messages: the brief's full path, the copy's path, the branch name
-and the package. Claude Code: for tries 2 and 3 pass model `opus` to the Agent tool (effort can't be set there). Codex:
-a try you can't start counts as failed.
+**Outside BB**: use the tool's own subagents (Claude Code: the Agent tool, in parallel; Codex: spawn agents of
+those types). Pick `ship-worker` for try 1, `ship-worker-try-2` for try 2, `ship-worker-try-3` for try 3 and
+questions, `ship-fix-worker` for the review-fix round, and `ship-reviewer` for review. Same messages: the brief's full
+path, the copy's path, the branch name and the package. Each type in `agents/` sets both its model and effort; select
+the right type, not just a model
+override on the try-1 worker. A build-worker try you can't start counts as failed. If a fix worker or the reviewer
+can't start, stop before shipping and report the blocker.
 
 | Role | Claude Code model | Codex model | Effort (both) |
 |---|---|---|---|
 | Coordinator | yours (inherited) | yours (inherited) | yours |
-| Worker, try 1 | `sonnet` | newest Luna | `medium` |
-| Worker, try 2 | `opus` | newest Sol | `medium` |
-| Worker, try 3 (and questions) | `opus` | newest Sol | `xhigh` |
-| Reviewer | `opus` | newest Sol | `high` |
+| Worker, try 1 | newest Sonnet | newest Sol | `medium` |
+| Worker, try 2 | newest Sonnet | newest Sol | `xhigh` |
+| Worker, try 3 (and questions) | newest Opus | newest Astra | `high` |
+| Reviewer | newest Fable | newest Astra | `max` |
+| Review-fix worker | newest Fable | newest Astra | `max` |
 
-The user always wants the newest Luna and Sol, the way `sonnet` and `opus` always mean the newest Sonnet and Opus (Claude
-Code moves those names itself). Codex has no such names, so you pick: once per ship-it, run
-`bb provider models codex --json` and take the `gpt-<version>-luna` and `gpt-<version>-sol` with the highest version
-(plain names only: skip any with more after `luna`/`sol`, such as `-pro`). On 2026-11-06 that was `gpt-6-luna` and
-`gpt-6.1-sol`; if yours is newer, say so in your report.
+The user always wants the newest model in each named family. Inside BB, once per ship-it, run
+`bb provider models <provider> --json` for your provider. Claude Code: choose the newest Sonnet, Opus and Fable;
+Codex: choose the newest Sol and Astra. Compare numeric versions within each family, not model-name strings.
+For Codex, use plain `gpt-<version>-sol` and `gpt-<version>-astra` names only; skip suffix variants such as `-pro`.
+Pass the exact model ID from the catalog and the table's effort to each launch. `xhigh` means extra high and
+`max` means maximum; neither is `ultra` or `ultracode`.
 
-The subagent route (`agents/`, outside BB) has fixed names; update them when a newer one ships. If
-bb refuses a model name or effort, run `bb provider models <provider>` once, use the matching tier (for `xhigh`, the
-level just above `high`), and tell the user.
+The native subagent files in `agents/` pin model IDs and efforts. Update those maintained presets when a newer
+model in the same family ships; they must match the table before using the outside-BB route. Check that the
+selected model supports the required effort. If BB refuses a model or effort, refresh its catalog once and retry
+with the newest model in that same family at that same effort. Never silently substitute a different family or
+effort. A build-worker try that still cannot start counts as failed; an unavailable reviewer or fix worker blocks
+shipping. Report the unavailable combination.
 
 ## Long threads
 - Nobody compacts: it loses the plan.
@@ -139,5 +149,5 @@ level just above `high`), and tell the user.
   example `400,000 / 1,000,000` is 40%. Outside BB nothing prints it, so judge for yourself.
 - Coordinator: after each round, look. Over 40%: make sure `## Progress` is up to date, then end your turn with
   "Fresh coordinator needed after round <N>." Your parent starts one from the same coordinator.md. Outside BB, tell
-  the user to hand off to a new thread.
+  the user to hand off to a new thread (he has a button for it).
 - Workers stop at 40% and hand off too (their brief says how); you start a fresh one.

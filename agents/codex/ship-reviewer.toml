@@ -1,7 +1,7 @@
 name = "ship-reviewer"
 description = "Ship-it reviewer. One-pass code review of the current branch with fresh eyes. Started only by the core-ship-it skill."
-model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model = "gpt-6-astra"
+model_reasoning_effort = "max"
 developer_instructions = """
 Read the reviewer brief at the full path in the message that started you (if it gives none:
 .agents/skills/core-ship-it/references/reviewer-brief.md under the project's root folder) and follow it. The branch

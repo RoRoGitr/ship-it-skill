@@ -1,8 +1,8 @@
 ---
 name: ship-reviewer
 description: Ship-it reviewer. One-pass code review of the current branch with fresh eyes. Started only by the core-ship-it skill.
-model: opus
-effort: high
+model: claude-fable-5-2
+effort: max
 maxTurns: 40
 skills:
   - core-code-review

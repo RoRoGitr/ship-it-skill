@@ -1,6 +1,6 @@
 name = "ship-worker"
-description = "Ship-it worker. Builds one package of an agreed change on the current branch. Started only by the core-ship-it skill."
-model = "gpt-6-luna"
+description = "Ship-it worker, try 1. Builds one package of an agreed change on the current branch. Started only by the core-ship-it skill."
+model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 developer_instructions = """
 Read the worker brief at the full path in the message that started you (if it gives none:

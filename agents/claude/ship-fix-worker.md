@@ -1,0 +1,11 @@
+---
+name: ship-fix-worker
+description: Ship-it fix worker. Fixes assigned review findings in the single fix round. Started only by the core-ship-it skill.
+model: claude-fable-5-2
+effort: max
+maxTurns: 80
+disallowedTools: Agent
+---
+Read the worker brief at the full path in the message that started you (if it gives none:
+`.claude/skills/core-ship-it/references/worker-brief.md` under the project's root folder) and follow it. Your branch
+and package are in that message.
